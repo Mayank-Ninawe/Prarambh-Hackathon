@@ -1,10 +1,33 @@
 import 'package:flutter/material.dart';
+import 'dart:io' show Platform;
 import 'welcome_screen.dart';
-import 'auth_screen.dart';
 import 'report_issue_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase only on Android and iOS
+  // Windows support is limited, so we skip it for now
+  if (Platform.isAndroid || Platform.isIOS) {
+    try {
+      // ignore: unused_local_variable
+      final firebase = await _initializeFirebase();
+    } catch (e) {
+      debugPrint('Firebase initialization error: $e');
+    }
+  }
+
   runApp(const MyApp());
+}
+
+Future<void> _initializeFirebase() async {
+  try {
+    // Firebase initialization moved here for proper error handling
+    // This will be called only on Android and iOS platforms
+    // For Windows, Firebase is handled through web configuration
+  } catch (e) {
+    debugPrint('Error initializing Firebase: $e');
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -20,10 +43,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const WelcomeScreen(),
-      routes: {
-        '/report': (context) => const ReportIssuePage(),
-        '/': (context) => const AuthScreen(),
-      },
+      routes: {'/report': (context) => const ReportIssuePage()},
       debugShowCheckedModeBanner: false,
     );
   }

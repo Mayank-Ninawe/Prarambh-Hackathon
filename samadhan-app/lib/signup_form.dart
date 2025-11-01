@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'firebase/firebase_service.dart';
 
 class SignupForm extends StatefulWidget {
   final VoidCallback onSubmit;
@@ -16,8 +17,11 @@ class _SignupFormState extends State<SignupForm> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   bool _termsAccepted = false;
+  bool _isLoading = false;
 
-  void _submit() {
+  final FirebaseService _firebaseService = FirebaseService();
+
+  void _submit() async {
     if (_formKey.currentState!.validate()) {
       if (!_termsAccepted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -28,8 +32,51 @@ class _SignupFormState extends State<SignupForm> {
         return;
       }
       _formKey.currentState!.save();
-      // Add a small delay/loading indicator before calling onSubmit
-      widget.onSubmit();
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        // Call Firebase sign up
+        await _firebaseService.signUpWithEmailPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+          fullName: _nameController.text.trim(),
+        );
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sign up successful! Please login.'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+
+        // Clear form
+        _nameController.clear();
+        _emailController.clear();
+        _passwordController.clear();
+        setState(() {
+          _termsAccepted = false;
+        });
+
+        // Call the callback to switch to login
+        widget.onSubmit();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sign up failed: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -147,20 +194,20 @@ class _SignupFormState extends State<SignupForm> {
             width: double.infinity,
             height: 50,
             child: ElevatedButton(
-              onPressed: _submit,
+              onPressed: _isLoading ? null : _submit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors
-                    .green
-                    .shade600, // A different, positive color for Sign Up
+                backgroundColor: Colors.green.shade600,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 elevation: 5,
               ),
-              child: const Text(
-                'SIGN UP',
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
+              child: _isLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text(
+                      'SIGN UP',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
             ),
           ),
         ],

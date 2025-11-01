@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'my_issues_screen.dart';
 import 'report_issue_page.dart';
 import 'profile_screen.dart';
+import 'auth_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -216,10 +217,11 @@ class _HomeTabState extends State<HomeTab> {
           TextButton(
             onPressed: () {
               Navigator.pop(context); // Close dialog
-              // Navigate back to AuthScreen
-              Navigator.of(
-                context,
-              ).pushNamedAndRemoveUntil('/', (route) => false);
+              // Navigate back to AuthScreen with full replacement
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const AuthScreen()),
+                (route) => false,
+              );
             },
             child: const Text('Logout', style: TextStyle(color: Colors.red)),
           ),

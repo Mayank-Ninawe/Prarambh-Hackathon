@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'login_form.dart';
 import 'signup_form.dart';
 import 'home_screen.dart';
+import 'firebase/firebase_service.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -13,6 +14,7 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   // State to toggle between Login (true) and Sign Up (false)
   bool isLogin = true;
+  final FirebaseService _firebaseService = FirebaseService();
 
   void toggleAuthMode() {
     setState(() {
@@ -20,53 +22,64 @@ class _AuthScreenState extends State<AuthScreen> {
     });
   }
 
-  // --- Placeholder Logic Functions ---
-  void _submitLoginForm(String email, String password) {
-    // Temporary authentication credentials
-    const String tempEmail = 'rishirajraj124@gmail.com';
-    const String tempPassword = '123456';
+  // --- Handle Login Form Submission ---
+  void _submitLoginForm(String email, String password) async {
+    try {
+      // Attempt to sign in
+      final userCredential = await _firebaseService.signInWithEmailPassword(
+        email: email.trim(),
+        password: password,
+      );
 
-    // Validate credentials
-    if (email == tempEmail && password == tempPassword) {
       // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login Successful!'),
-          duration: Duration(seconds: 1),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Welcome back, ${userCredential.user.displayName}!'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
 
-      // Navigate to HomeScreen after a short delay
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
-          );
-        }
-      });
-    } else {
+        // Navigate to HomeScreen after a short delay
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+            );
+          }
+        });
+      }
+    } catch (e) {
       // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invalid email or password!'),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
-  void _submitSignupForm() {
-    // 1. Validate form fields (e.g., check password complexity)
-    // 2. Register new user
+  void _submitSignupForm() async {
+    // After successful signup, switch to login form
+    setState(() {
+      isLogin = true;
+    });
 
-    // On success, you might automatically log them in or ask them to login:
-    // setState(() { isLogin = true; });
-
-    // Placeholder: Show a message
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Sign Up Attempted!')));
+    // Show a message
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Account created successfully! Please login now.'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override

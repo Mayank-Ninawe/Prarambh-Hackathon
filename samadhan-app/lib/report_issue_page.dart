@@ -398,20 +398,6 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
                   Icons.priority_high,
                 ),
                 items: _priorities.map((String priority) {
-                  Color priorityColor;
-                  switch (priority) {
-                    case 'Critical':
-                      priorityColor = Colors.red;
-                      break;
-                    case 'High':
-                      priorityColor = Colors.orange;
-                      break;
-                    case 'Medium':
-                      priorityColor = Colors.blue;
-                      break;
-                    default:
-                      priorityColor = Colors.green;
-                  }
                   return DropdownMenuItem<String>(
                     value: priority,
                     child: Text(priority, overflow: TextOverflow.ellipsis),
