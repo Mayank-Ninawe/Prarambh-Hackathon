@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'welcome_screen.dart';
+import 'auth_screen.dart';
 import 'report_issue_page.dart';
 
 void main() {
@@ -19,7 +20,10 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const WelcomeScreen(),
-      routes: {'/report': (context) => const ReportIssuePage()},
+      routes: {
+        '/report': (context) => const ReportIssuePage(),
+        '/': (context) => const AuthScreen(),
+      },
       debugShowCheckedModeBanner: false,
     );
   }

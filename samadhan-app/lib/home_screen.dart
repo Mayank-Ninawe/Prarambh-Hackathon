@@ -21,18 +21,10 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   void _onItemTapped(int index) {
-    // Adjust index for screens since plus button is in the middle
-    int screenIndex = index;
-    if (index > 1) {
-      screenIndex = index - 1;
-    }
-    
     setState(() {
       _selectedIndex = index;
     });
-  }
-
-  @override
+  }  @override
   Widget build(BuildContext context) {
     // Determine which screen to show based on selected index
     Widget currentScreen;
@@ -117,9 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // If pushNamed fails, fall back to direct navigation
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => const ReportIssuePage(),
-              ),
+              MaterialPageRoute(builder: (_) => const ReportIssuePage()),
             );
           }
         } catch (e) {
@@ -131,13 +121,11 @@ class _HomeScreenState extends State<HomeScreen> {
               duration: Duration(seconds: 1),
             ),
           );
-          
+
           Future.delayed(const Duration(milliseconds: 100), () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => const ReportIssuePage(),
-              ),
+              MaterialPageRoute(builder: (_) => const ReportIssuePage()),
             );
           });
         }
@@ -157,11 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 28,
-        ),
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
     );
   }
@@ -180,7 +164,8 @@ class _HomeTabState extends State<HomeTab> {
     {
       'id': 1,
       'title': 'Broken Street Light on Main Road',
-      'description': 'The street light near the bus stop has been broken for 3 days, making it dangerous at night.',
+      'description':
+          'The street light near the bus stop has been broken for 3 days, making it dangerous at night.',
       'location': 'Main Road, Sector 15',
       'votes': 23,
       'status': 'Pending',
@@ -191,7 +176,8 @@ class _HomeTabState extends State<HomeTab> {
     {
       'id': 2,
       'title': 'Pothole on Highway',
-      'description': 'Large pothole causing traffic issues and vehicle damage near the shopping complex.',
+      'description':
+          'Large pothole causing traffic issues and vehicle damage near the shopping complex.',
       'location': 'Highway 101, KM 45',
       'votes': 15,
       'status': 'In Progress',
@@ -202,7 +188,8 @@ class _HomeTabState extends State<HomeTab> {
     {
       'id': 3,
       'title': 'Water Leakage in Park',
-      'description': 'Continuous water leakage from the main pipe creating muddy conditions in the children\'s play area.',
+      'description':
+          'Continuous water leakage from the main pipe creating muddy conditions in the children\'s play area.',
       'location': 'Central Park, Zone A',
       'votes': 8,
       'status': 'Resolved',
@@ -212,16 +199,47 @@ class _HomeTabState extends State<HomeTab> {
     },
   ];
 
+  void _logout() {
+    // Show confirmation dialog
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+              // Navigate back to AuthScreen
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil('/', (route) => false);
+            },
+            child: const Text('Logout', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _voteIssue(int issueId) {
     setState(() {
-      final issueIndex = dummyIssues.indexWhere((issue) => issue['id'] == issueId);
+      final issueIndex = dummyIssues.indexWhere(
+        (issue) => issue['id'] == issueId,
+      );
       if (issueIndex != -1) {
         dummyIssues[issueIndex]['votes']++;
-        
+
         // Show feedback
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Vote added! Total votes: ${dummyIssues[issueIndex]['votes']}'),
+            content: Text(
+              'Vote added! Total votes: ${dummyIssues[issueIndex]['votes']}',
+            ),
             backgroundColor: const Color(0xFF667eea),
             duration: const Duration(seconds: 1),
           ),
@@ -264,16 +282,34 @@ class _HomeTabState extends State<HomeTab> {
         backgroundColor: const Color(0xFF667eea),
         foregroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'logout') {
+                _logout();
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, color: Colors.red, size: 20),
+                    SizedBox(width: 8),
+                    Text('Logout', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF667eea),
-              Color(0xFF764ba2),
-            ],
+            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
           ),
         ),
         child: SafeArea(
@@ -296,10 +332,7 @@ class _HomeTabState extends State<HomeTab> {
                     SizedBox(height: 8),
                     Text(
                       'Vote on issues to increase their priority',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white70,
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.white70),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -408,19 +441,16 @@ class IssueVoteCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          
+
           // Description
           Text(
             issue['description'],
-            style: const TextStyle(
-              color: Colors.grey,
-              fontSize: 14,
-            ),
+            style: const TextStyle(color: Colors.grey, fontSize: 14),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 12),
-          
+
           // Location and Category
           Row(
             children: [
@@ -429,10 +459,7 @@ class IssueVoteCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   issue['location'],
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -456,7 +483,7 @@ class IssueVoteCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          
+
           // Bottom Row with Status, Date, and Vote Button
           Row(
             children: [
@@ -480,18 +507,18 @@ class IssueVoteCard extends StatelessWidget {
               const SizedBox(width: 4),
               Text(
                 issue['date'],
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 12,
-                ),
+                style: const TextStyle(color: Colors.grey, fontSize: 12),
               ),
               const Spacer(),
-              
+
               // Vote Button
               GestureDetector(
                 onTap: onVote,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF667eea),
                     borderRadius: BorderRadius.circular(20),
@@ -499,11 +526,7 @@ class IssueVoteCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
-                        Icons.thumb_up,
-                        size: 16,
-                        color: Colors.white,
-                      ),
+                      const Icon(Icons.thumb_up, size: 16, color: Colors.white),
                       const SizedBox(width: 4),
                       Text(
                         '${issue['votes']}',
@@ -540,11 +563,7 @@ class SearchTab extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.search,
-              size: 80,
-              color: Color(0xFF667eea),
-            ),
+            Icon(Icons.search, size: 80, color: Color(0xFF667eea)),
             SizedBox(height: 24),
             Text(
               'Search Screen',
@@ -557,10 +576,7 @@ class SearchTab extends StatelessWidget {
             SizedBox(height: 16),
             Text(
               'Search functionality coming soon!',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
           ],
         ),
